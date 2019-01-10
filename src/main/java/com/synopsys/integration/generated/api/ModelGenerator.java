@@ -19,6 +19,7 @@ import com.synopsys.integration.generated.api.api.Endpoint;
 import com.synopsys.integration.generated.api.api.FieldSpecification;
 import com.synopsys.integration.generated.api.api.RequestParameter;
 import com.synopsys.integration.generated.api.api.RequestSpecification;
+import com.synopsys.integration.generated.api.api.ResponseLinkSpecification;
 import com.synopsys.integration.generated.api.api.ResponseSpecification;
 import com.synopsys.integration.rest.HttpMethod;
 
@@ -28,6 +29,7 @@ public class ModelGenerator {
     private static final String REQUEST_SPEC_PARAMS_FILE = "request-specification-parameters.csv";
     private static final String REQUEST_SPEC_FIELDS_FILE = "request-specification-fields.csv";
     private static final String RESPONSE_SPEC_FIELDS_FILE = "response-specification-fields.csv";
+    private static final String RESPONSE_SPEC_LINKS_FILE = "specification-link.csv";
 
     public static void main(final String[] args) throws Exception {
         final File tempDirectory = Files.createTempDirectory("blackduck-api-generator-temp").toFile();
@@ -120,7 +122,8 @@ public class ModelGenerator {
             final File requestSpecFieldsFile = fileFinder.findFile(mediaTypeDirectory, REQUEST_SPEC_FIELDS_FILE);
             final RequestSpecification requestSpecification = extractRequestSpecification(requestSpecParamsFile, requestSpecFieldsFile);
             final File responseSpecFieldsFile = fileFinder.findFile(mediaTypeDirectory, RESPONSE_SPEC_FIELDS_FILE);
-            final ResponseSpecification responseSpecification = extractResponseSpecification(responseSpecFieldsFile);
+            final File responseSpecLinksFile = fileFinder.findFile(mediaTypeDirectory, RESPONSE_SPEC_LINKS_FILE);
+            final ResponseSpecification responseSpecification = extractResponseSpecification(responseSpecFieldsFile, responseSpecLinksFile);
             final Endpoint endpoint = new Endpoint(currentPath, httpMethod, mediaType, requestSpecification, responseSpecification);
 
             endpoints.add(endpoint);
@@ -155,17 +158,27 @@ public class ModelGenerator {
         return requestSpecification;
     }
 
-    private ResponseSpecification extractResponseSpecification(final File responseSpecFieldsFile) throws IOException {
+    private ResponseSpecification extractResponseSpecification(final File responseSpecFieldsFile, final File responseSpecLinksFile) throws IOException {
         ResponseSpecification responseSpecification = null;
 
         if (responseSpecFieldsFile != null && responseSpecFieldsFile.exists()) {
             responseSpecification = new ResponseSpecification();
-            final Reader fileReader = new FileReader(responseSpecFieldsFile);
-            final CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
+            final Reader fieldsFileReader = new FileReader(responseSpecFieldsFile);
+            final CSVParser fieldsCSVParser = new CSVParser(fieldsFileReader, CSVFormat.DEFAULT);
 
-            for (final CSVRecord csvRecord : csvParser) {
+            for (final CSVRecord csvRecord : fieldsCSVParser) {
                 final FieldSpecification fieldSpecification = FieldSpecification.createFromCSVRecord(csvRecord);
                 responseSpecification.addFieldSpecification(fieldSpecification);
+            }
+
+            if (responseSpecLinksFile != null && responseSpecLinksFile.exists()) {
+                final Reader linksFileReader = new FileReader(responseSpecLinksFile);
+                final CSVParser linksCSVParser = new CSVParser(linksFileReader, CSVFormat.DEFAULT);
+
+                for (final CSVRecord csvRecord : linksCSVParser) {
+                    final ResponseLinkSpecification responseLinkSpecification = ResponseLinkSpecification.createFromCSVRecord(csvRecord);
+                    responseSpecification.addLinkSpecification(responseLinkSpecification);
+                }
             }
         }
 
