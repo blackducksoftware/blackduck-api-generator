@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +68,7 @@ public class ModelGenerator {
 
     private List<Endpoint> discoverEndpoints(final File currentDirectory, final String currentPath) throws IOException {
         final List<Endpoint> endpoints = new ArrayList<>();
-        final List<File> directories = fileFinder.findDirectories(currentDirectory, "*");
+        final List<File> directories = getSubDirectories(currentDirectory);
 
         for (final File directory : directories) {
             final Optional<HttpMethod> httpMethodOptional = getHttpMethod(directory.getName());
@@ -86,6 +87,16 @@ public class ModelGenerator {
         return endpoints;
     }
 
+    private final List<File> getSubDirectories(final File directory) {
+        final File[] files = directory.listFiles();
+
+        if (files != null) {
+            return new ArrayList<>(Arrays.asList(files));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     private Optional<HttpMethod> getHttpMethod(final String directoryName) {
         try {
             return Optional.of(HttpMethod.valueOf(directoryName));
@@ -100,15 +111,15 @@ public class ModelGenerator {
 
     final List<Endpoint> handleHttpMethod(final HttpMethod httpMethod, final File httpMethodDirectory, final String currentPath) throws IOException {
         final List<Endpoint> endpoints = new ArrayList<>();
-        final List<File> mediaTypeDirectories = fileFinder.findDirectories(httpMethodDirectory, "*");
+        final List<File> mediaTypeDirectories = getSubDirectories(httpMethodDirectory);
 
         for (final File mediaTypeDirectory : mediaTypeDirectories) {
             final String minifiedMediaType = fileFinder.extractFinalPieceFromPath(mediaTypeDirectory.getPath());
             final String mediaType = mediaTypeManager.getMediaType(minifiedMediaType);
-            final File requestSpecParamsFile = fileFinder.findFile(httpMethodDirectory, REQUEST_SPEC_PARAMS_FILE);
-            final File requestSpecFieldsFile = fileFinder.findFile(httpMethodDirectory, REQUEST_SPEC_FIELDS_FILE);
+            final File requestSpecParamsFile = fileFinder.findFile(mediaTypeDirectory, REQUEST_SPEC_PARAMS_FILE);
+            final File requestSpecFieldsFile = fileFinder.findFile(mediaTypeDirectory, REQUEST_SPEC_FIELDS_FILE);
             final RequestSpecification requestSpecification = extractRequestSpecification(requestSpecParamsFile, requestSpecFieldsFile);
-            final File responseSpecFieldsFile = fileFinder.findFile(httpMethodDirectory, RESPONSE_SPEC_FIELDS_FILE);
+            final File responseSpecFieldsFile = fileFinder.findFile(mediaTypeDirectory, RESPONSE_SPEC_FIELDS_FILE);
             final ResponseSpecification responseSpecification = extractResponseSpecification(responseSpecFieldsFile);
             final Endpoint endpoint = new Endpoint(currentPath, httpMethod, mediaType, requestSpecification, responseSpecification);
 
