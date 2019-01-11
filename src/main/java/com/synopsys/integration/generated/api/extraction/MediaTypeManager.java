@@ -1,4 +1,4 @@
-package com.synopsys.integration.generated.api;
+package com.synopsys.integration.generated.api.extraction;
 
 import java.io.File;
 import java.io.FileReader;

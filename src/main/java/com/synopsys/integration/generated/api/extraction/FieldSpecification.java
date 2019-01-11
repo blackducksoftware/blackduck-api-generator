@@ -1,4 +1,4 @@
-package com.synopsys.integration.generated.api.api;
+package com.synopsys.integration.generated.api.extraction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
