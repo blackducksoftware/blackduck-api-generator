@@ -19,6 +19,24 @@ public class ModelGenerator {
     public static final String RESPONSE_SPEC_FIELDS_FILE = "response-specification-fields.csv";
     public static final String RESPONSE_SPEC_LINKS_FILE = "specification-link.csv";
 
+    public static final String DIRECTORY_PREFIX = "/com/synopsys/integration/blackduck/api/generated";
+    public static final String DISCOVERY_DIRECTORY = DIRECTORY_PREFIX + "/discovery";
+    public static final String ENUM_DIRECTORY = DIRECTORY_PREFIX + "/enumeration";
+    public static final String VIEW_DIRECTORY = DIRECTORY_PREFIX + "/view";
+    public static final String RESPONSE_DIRECTORY = DIRECTORY_PREFIX + "/response";
+    public static final String COMPONENT_DIRECTORY = DIRECTORY_PREFIX + "/component";
+
+    public static final String API_CORE_PACKAGE_PREFIX = "com.synopsys.integration.blackduck.api.core";
+    public static final String GENERATED_PACKAGE_PREFIX = "com.synopsys.integration.blackduck.api.generated";
+    public static final String DISCOVERY_PACKAGE = GENERATED_PACKAGE_PREFIX + ".discovery";
+    public static final String ENUM_PACKAGE = GENERATED_PACKAGE_PREFIX + ".enumeration";
+    public static final String VIEW_PACKAGE_SUFFIX = ".view";
+    public static final String RESPONSE_PACKAGE_SUFFIX = ".response";
+    public static final String COMPONENT_PACKAGE_SUFFIX = ".component";
+    public static final String VIEW_PACKAGE = GENERATED_PACKAGE_PREFIX + VIEW_PACKAGE_SUFFIX;
+    public static final String RESPONSE_PACKAGE = GENERATED_PACKAGE_PREFIX + RESPONSE_PACKAGE_SUFFIX;
+    public static final String COMPONENT_PACKAGE = GENERATED_PACKAGE_PREFIX + COMPONENT_PACKAGE_SUFFIX;
+
     public static void main(final String[] args) throws Exception {
         final File tempDirectory = Files.createTempDirectory("blackduck-api-generator-temp").toFile();
         System.out.println(String.format("Writing output to: %s", tempDirectory.getCanonicalPath()));
@@ -57,4 +75,7 @@ public class ModelGenerator {
         System.out.println(json);
     }
 
+    private void create(final List<Endpoint> endpoints) {
+
+    }
 }
